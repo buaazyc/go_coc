@@ -2,20 +2,14 @@ package parser
 
 import (
 	"encoding/json"
-	"log"
 )
 
-func CurrentWar(info string) error {
-	// log.Println(info)
-	warInfo := make(map[string]interface{})
+// CurrentWar 解析部落战信息
+func CurrentWar(info string) (*ClanWar, error) {
+	warInfo := ClanWar{}
 	err := json.Unmarshal([]byte(info), &warInfo)
-	for k, v := range warInfo {
-		log.Println(k)
-		log.Println(v)
-		log.Println()
-	}
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return &warInfo, nil
 }
