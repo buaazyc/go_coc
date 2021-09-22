@@ -8,7 +8,12 @@ import (
 
 // Configuration 配置
 type Configuration struct {
-	Token string `json:"token"`
+	Token         string `json:"token"`
+	MysqlUser     string `json:"mysqlUser"`
+	MysqlPassword string `json:"mysqlPassword"`
+	MysqlDBName   string `json:"mysqlDBName"`
+	MysqlHost     string `json:"mysqlHost"`
+	MysqlPort     int    `json:"mysqlPort"`
 }
 
 // 全局配置变量
