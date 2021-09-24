@@ -9,6 +9,8 @@ import (
 )
 
 func main() {
+	// 设置log输出格式
+	log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
 	// 获取配置文件
 	if err := config.GetConf(); err != nil {
 		log.Printf("GetConf err: %v", err)

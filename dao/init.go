@@ -28,3 +28,10 @@ func ConnectDB() (err error) {
 	}
 	return nil
 }
+
+/*
+建表命令
+create table current_war (clan_tag varchar(32) not null, start_time timestamp not null, info text not null) engine=InnoDB DEFAULT charset=utf8mb4;
+
+
+*/

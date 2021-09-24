@@ -9,10 +9,13 @@ import (
 	"go_coc/scene"
 )
 
-func indexHandler(w http.ResponseWriter, req *http.Request) {
+// handler 服务监听函数
+func handler(w http.ResponseWriter, req *http.Request) {
+	// 解析客户端发送的req请求内容
 	req.ParseForm()
 	use := req.FormValue("use")
 	clan := req.FormValue("clan")
+	// 根据use不同，触发不同的场景
 	switch use {
 	case "currentwar":
 		cur, _ := scene.CurrentWar(clan[1:])
@@ -21,7 +24,8 @@ func indexHandler(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
+// Server 启动服务
 func Server() error {
-	http.HandleFunc("/", indexHandler)
+	http.HandleFunc("/", handler)
 	return http.ListenAndServeTLS(config.Conf.ServerPort, config.Conf.CertFile, config.Conf.KeyFile, nil)
 }
