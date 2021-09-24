@@ -3,6 +3,7 @@ package client
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 
@@ -17,6 +18,7 @@ var httpClient = &http.Client{
 // SendAPI 向coc开发者api发送http请求
 func SendAPI(uri string) (string, error) {
 	url := constant.CocBaseURL + uri
+	log.Printf("send url: %v", url)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return "", fmt.Errorf("http.NewRequest err: %v", err)

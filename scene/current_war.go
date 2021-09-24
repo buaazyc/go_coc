@@ -4,16 +4,19 @@ import (
 	"go_coc/client"
 	"go_coc/dao"
 	"go_coc/parser"
+	"log"
 )
 
-func CurrentWar() error {
-	res, err := client.SendAPI("/clans/%23R2JRG9PQ/currentwar")
+// CurrentWar 获取当前部落战
+func CurrentWar(clan string) (*parser.ClanWar, error) {
+	res, err := client.SendAPI("/clans/%23" + clan + "/currentwar")
 	if err != nil {
-		return err
+		return nil, err
 	}
 	currentWar, _ := parser.CurrentWar(res)
-	if err := dao.Insert(currentWar.Clan.Tag, currentWar.StartTime, res); err != nil {
-		return err
+	log.Printf("currentWar: %+v", currentWar)
+	if err := dao.InsertCurrentWar(currentWar.Clan.Tag, currentWar.StartTime, res); err != nil {
+		return nil, err
 	}
-	return nil
+	return currentWar, nil
 }

@@ -14,6 +14,9 @@ type Configuration struct {
 	MysqlDBName   string `json:"mysqlDBName"`
 	MysqlHost     string `json:"mysqlHost"`
 	MysqlPort     int    `json:"mysqlPort"`
+	ServerPort    string `json:"serverPort"`
+	CertFile      string `json:"certFile"`
+	KeyFile       string `json:"keyFile"`
 }
 
 // 全局配置变量
