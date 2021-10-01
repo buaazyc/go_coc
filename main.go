@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"go_coc/api"
+	"go_coc/async"
 	"go_coc/config"
 	"go_coc/dao"
 )
@@ -18,6 +19,10 @@ func main() {
 	// 连接数据库
 	if err := dao.ConnectDB(); err != nil {
 		log.Printf("ConnectDB err: %v", err)
+	}
+	// 异步
+	if err := async.Init(); err != nil {
+		log.Printf("async.Init err: %v", err)
 	}
 	// 启动服务
 	if err := api.Server(); err != nil {

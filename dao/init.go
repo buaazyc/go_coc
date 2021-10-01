@@ -11,6 +11,7 @@ import (
 
 var mysqlProxy *sql.DB
 
+// ConnectDB 连接数据库
 func ConnectDB() (err error) {
 	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v",
 		config.Conf.MysqlUser,
@@ -31,7 +32,7 @@ func ConnectDB() (err error) {
 
 /*
 建表命令
-create table current_war (clan_tag varchar(32) not null, start_time timestamp not null, info text not null) engine=InnoDB DEFAULT charset=utf8mb4;
-
-
+create table current_war
+(clan_tag varchar(32) not null, start_time timestamp not null, info text not null)
+engine=InnoDB DEFAULT charset=utf8mb4;
 */

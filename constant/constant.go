@@ -1,5 +1,4 @@
 package constant
 
-const (
-	CocBaseURL = "https://api.clashofclans.com/v1"
-)
+// CocBaseURL coc官方api
+const CocBaseURL = "https://api.clashofclans.com/v1"

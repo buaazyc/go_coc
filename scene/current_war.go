@@ -4,7 +4,6 @@ import (
 	"go_coc/client"
 	"go_coc/dao"
 	"go_coc/parser"
-	"log"
 )
 
 // CurrentWar 获取当前部落战
@@ -19,7 +18,6 @@ func CurrentWar(clan string) (*parser.ClanWar, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Printf("currentWar: %+v", currentWar)
 	// 插入数据到数据库
 	if err := dao.InsertCurrentWar(currentWar.Clan.Tag, currentWar.StartTime, res); err != nil {
 		return nil, err
