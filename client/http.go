@@ -3,7 +3,6 @@ package client
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 
@@ -11,16 +10,16 @@ import (
 	"go_coc/constant"
 )
 
-// httpClient 超时时间设置为3s
+// httpClient 超时时间设置为4s
 var httpClient = &http.Client{
-	Timeout: time.Second * 3,
+	Timeout: time.Second * 4,
 }
 
 // SendAPI 向coc开发者api发送http请求
 func SendAPI(uri string) (string, error) {
 	// 创建GET请求
 	url := constant.CocBaseURL + uri
-	log.Printf("send url: %v", url)
+	// log.Printf("send url: %v", url)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return "", fmt.Errorf("http.NewRequest err: %v", err)
@@ -38,5 +37,6 @@ func SendAPI(uri string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("ioutil.ReadAll err: %v", err)
 	}
+	// log.Printf("body: %+v", string(body))
 	return string(body), nil
 }

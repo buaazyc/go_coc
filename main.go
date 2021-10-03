@@ -4,26 +4,31 @@ import (
 	"log"
 
 	"go_coc/api"
-	"go_coc/async"
 	"go_coc/config"
 	"go_coc/dao"
 )
 
+func develop() {
+
+}
+
 func main() {
-	// 设置log输出格式
+	// 初始化log输出格式
 	log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
-	// 获取配置文件
+	// 初始化获取配置文件
 	if err := config.GetConf(); err != nil {
 		log.Printf("GetConf err: %v", err)
 	}
-	// 连接数据库
+	// 初始化数据库
 	if err := dao.ConnectDB(); err != nil {
 		log.Printf("ConnectDB err: %v", err)
 	}
-	// 异步
-	if err := async.Init(); err != nil {
-		log.Printf("async.Init err: %v", err)
-	}
+	// 异步定时任务
+	// if err := async.Init(); err != nil {
+	// 	log.Printf("async.Init err: %v", err)
+	// }
+	// 运行开发时的临时代码
+	develop()
 	// 启动服务
 	if err := api.Server(); err != nil {
 		log.Fatal(err)
