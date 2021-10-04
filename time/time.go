@@ -47,3 +47,14 @@ func GetTimeFromCoc(timeStr string) (time.Time, error) {
 func SeasonStr(s string) string {
 	return fmt.Sprintf("%v年%v月", s[:4], s[5:])
 }
+
+// SeasonToStr 将赛季的年月“202110”以汉字形式输出“2021年10月”
+func SeasonToStr(s string) string {
+	return fmt.Sprintf("%v年%v月", s[:4], s[4:])
+}
+
+// GetCurSeason 获取当前年月，如202110
+func GetCurSeason() string {
+	timeLayout := "200601"
+	return time.Now().Format(timeLayout)
+}

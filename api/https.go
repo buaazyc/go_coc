@@ -14,8 +14,10 @@ import (
 
 // handler 服务监听函数
 func handler(w http.ResponseWriter, req *http.Request) {
-	// 解析客户端发送的req请求内容
-	req.ParseForm()
+	if req.Method != "GET" {
+		log.Printf("%+v", req)
+		return
+	}
 	use := req.FormValue("use")
 	clan := req.FormValue("clan")
 	if len(clan) < constant.MinClanLen {
@@ -67,6 +69,20 @@ func handler(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		res, err := json.Marshal(leaguewar)
+		if err != nil {
+			log.Printf("json.Marshal err: %v", err)
+			errRsp(w, 404)
+			return
+		}
+		fmt.Fprintf(w, "%+v", string(res))
+	case "season":
+		season, err := scene.CurSeason(clan)
+		if err != nil {
+			log.Printf("scene.CurSeason err: %v", err)
+			errRsp(w, 404)
+			return
+		}
+		res, err := json.Marshal(season)
 		if err != nil {
 			log.Printf("json.Marshal err: %v", err)
 			errRsp(w, 404)

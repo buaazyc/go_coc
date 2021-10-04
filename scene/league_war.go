@@ -2,9 +2,10 @@ package scene
 
 import (
 	"fmt"
-	"log"
+	"sync"
 
 	"go_coc/client"
+	"go_coc/goroutine"
 	"go_coc/parser"
 	"go_coc/time"
 )
@@ -31,6 +32,9 @@ func LeagueWarRsp(clan string) (*parser.LeagueWarRsp, error) {
 	}
 	// 提取各成员战绩
 	members := getMembers(wars)
+	// 计算得分
+	calLeagueScore(members)
+	// 返回结果
 	return &parser.LeagueWarRsp{
 		Name:    wars[0].Name,
 		Season:  time.SeasonStr(clanWarLeagueGroup.Season),
@@ -56,53 +60,48 @@ func LeagueWar(war string) (*parser.ClanWar, error) {
 
 // getValidWar 获取clan参与的联赛战绩
 func getValidWar(clan string, clanWarLeagueGroup *parser.ClanWarLeagueGroup) ([]*parser.WarClan, error) {
-	var wars []*parser.WarClan
+	var (
+		wars  []*parser.WarClan
+		lock  sync.Mutex
+		funcs []func() error
+	)
 	// assert len(clanWarLeagueGroup.Rounds) == 7
 	// 一次联赛打7天
 	for _, round := range clanWarLeagueGroup.Rounds {
 		// assert len(round.WarTags) == 4
 		// 每天8个队打4场
-		for _, warTag := range round.WarTags {
-			// 未到准备日打warTag为 #0
-			if warTag == "#0" {
-				break
-			}
-			war, err := LeagueWar(warTag[1:])
-			// log.Printf("%+v", war)
-			if err != nil {
-				log.Printf("%v", err)
-				continue
-			}
-			// 准备日的进攻不需要统计
-			if war.State == "preparation" {
-				continue
-			}
-			// 保存本部落相关战绩
-			if war.Clan.Tag[1:] == clan {
-				wars = append(wars, war.Clan)
-			}
-			if war.Opponent.Tag[1:] == clan {
-				wars = append(wars, war.Opponent)
-			}
+		for _, t := range round.WarTags {
+			warTag := t
+			funcs = append(funcs, func() error {
+				// 未到准备日打warTag为 #0
+				if warTag == "#0" {
+					return nil
+				}
+				war, err := LeagueWar(warTag[1:])
+				if err != nil {
+					return fmt.Errorf("%v", err)
+				}
+				// 准备日的进攻不需要统计
+				if war.State == "preparation" {
+					return nil
+				}
+				// 保存本部落相关战绩
+				lock.Lock()
+				defer lock.Unlock()
+				if war.Clan.Tag[1:] == clan {
+					wars = append(wars, war.Clan)
+				}
+				if war.Opponent.Tag[1:] == clan {
+					wars = append(wars, war.Opponent)
+				}
+				return nil
+			})
 		}
 	}
+	if err := goroutine.GoAndWait(funcs...); err != nil {
+		return nil, err
+	}
 	return wars, nil
-}
-
-// setStar 根据stars，在对应字段增加计数
-func setStar(stars uint32, info *parser.AttackInfo) {
-	if stars == 0 {
-		info.Zero++
-	}
-	if stars == 1 {
-		info.One++
-	}
-	if stars == 2 {
-		info.Two++
-	}
-	if stars == 3 {
-		info.Three++
-	}
 }
 
 // getMembers 根据每一场战绩wars，提取各个成员战绩
@@ -138,20 +137,34 @@ func getMembers(wars []*parser.WarClan) map[string]*parser.WarMember {
 			}
 		}
 	}
-	// 计算每个成员的得分
-	for _, member := range members {
-		member.Score = calScore(member)
-	}
 	return members
 }
 
-// calScore 计算每个成员的得分情况
-func calScore(member *parser.WarMember) uint32 {
-	var score uint32
-	score += 30 * (member.AttackInfo.AttackNum / member.JoinNum)
-	score += 15 * (member.AttackInfo.Three / member.JoinNum)
-	score += 15 * ((member.JoinNum - member.AttackInfo.One) / member.JoinNum)
-	score += 20 * ((member.JoinNum - member.AttackInfo.Zero) / member.JoinNum)
-	score += 20 * ((member.JoinNum - member.Defend.Three) / member.JoinNum)
-	return score
+// calLeagueScore 计算每个成员联赛的得分情况
+func calLeagueScore(members map[string]*parser.WarMember) {
+	for _, member := range members {
+		var score uint32
+		score += 30 * (member.AttackInfo.AttackNum / member.JoinNum)
+		score += 15 * (member.AttackInfo.Three / member.JoinNum)
+		score += 15 * ((member.JoinNum - member.AttackInfo.One) / member.JoinNum)
+		score += 20 * ((member.JoinNum - member.AttackInfo.Zero) / member.JoinNum)
+		score += 20 * ((member.JoinNum - member.Defend.Three) / member.JoinNum)
+		member.Score = score
+	}
+}
+
+// setStar 根据stars，在对应字段增加计数
+func setStar(stars uint32, info *parser.AttackInfo) {
+	if stars == 0 {
+		info.Zero++
+	}
+	if stars == 1 {
+		info.One++
+	}
+	if stars == 2 {
+		info.Two++
+	}
+	if stars == 3 {
+		info.Three++
+	}
 }

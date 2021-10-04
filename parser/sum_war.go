@@ -7,7 +7,7 @@ type LeagueWarRsp struct {
 	Members map[string]*WarMember `json:"members"`
 }
 
-type SumWarRsp struct {
+type SeasonRsp struct {
 	Name    string                `json:"name"`
 	Season  string                `json:"season"`
 	Members map[string]*WarMember `json:"members"`

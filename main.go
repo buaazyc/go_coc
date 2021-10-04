@@ -6,11 +6,9 @@ import (
 	"go_coc/api"
 	"go_coc/config"
 	"go_coc/dao"
-	"go_coc/scene"
 )
 
 func develop() {
-	scene.SumWar("#R2JRG9PQ", "202109")
 }
 
 func main() {

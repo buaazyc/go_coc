@@ -27,6 +27,50 @@ func LeagueGroup(clan string) (*parser.ClanWarLeagueGroup, error) {
 	return leagueGroup, nil
 }
 
+// LeagueGroupRsp 向前端展示小组分组的情况
+func LeagueGroupRsp(leagueGroup *parser.ClanWarLeagueGroup) (*parser.LeagueGroupRsp, error) {
+	if leagueGroup == nil {
+		return nil, fmt.Errorf("leagueGroup == nil")
+	}
+	// 每个部落获取其基本信息
+	var (
+		resClans  [][]string
+		warLeague string
+		lock      sync.Mutex
+		funcs     []func() error
+	)
+	for _, c := range leagueGroup.Clans {
+		clan := c
+		funcs = append(funcs, func() error {
+			clanInfo, err := ClanInfo(clan.Tag[1:])
+			warLeague = clanInfo.WarLeague.Name
+			if err != nil {
+				return err
+			}
+			lock.Lock()
+			defer lock.Unlock()
+			resClans = append(resClans, []string{
+				clan.Name,
+				clan.Tag,
+				fmt.Sprint(clan.ClanLevel),
+				fmt.Sprint(clanInfo.WarWinStreak),
+				fmt.Sprint(clanInfo.WarWins),
+				fmt.Sprint(clanInfo.ClanPoints),
+				fmt.Sprint(countTownHallLevel(clan)[14]),
+			})
+			return nil
+		})
+	}
+	if err := goroutine.GoAndWait(funcs...); err != nil {
+		return nil, err
+	}
+	return &parser.LeagueGroupRsp{
+		League: warLeague,
+		Season: time.SeasonStr(leagueGroup.Season),
+		Clans:  sortClans(resClans),
+	}, nil
+}
+
 // countTownHallLevel 统计参战的大本等级统计
 func countTownHallLevel(clan *parser.ClanWarLeagueClan) map[uint32]uint32 {
 	res := make(map[uint32]uint32)
@@ -45,47 +89,4 @@ func sortClans(clans [][]string) [][]string {
 		return a > b
 	})
 	return clans
-}
-
-// LeagueGroupRsp 并发形式
-func LeagueGroupRsp(leagueGroup *parser.ClanWarLeagueGroup) (*parser.LeagueGroupRsp, error) {
-	if leagueGroup == nil {
-		return nil, fmt.Errorf("leagueGroup == nil")
-	}
-	// 每个部落获取其基本信息
-	var resClans [][]string
-	var warLeague string
-	var lock sync.Mutex
-	var funcs []func() error
-	for _, c := range leagueGroup.Clans {
-		clan := c
-		funcs = append(funcs, func() error {
-			clanInfo, err := ClanInfo(clan.Tag[1:])
-			warLeague = clanInfo.WarLeague.Name
-			if err != nil {
-				return err
-			}
-			townHall := countTownHallLevel(clan)
-			lock.Lock()
-			defer lock.Unlock()
-			resClans = append(resClans, []string{
-				clan.Name,
-				clan.Tag,
-				fmt.Sprint(clan.ClanLevel),
-				fmt.Sprint(clanInfo.WarWinStreak),
-				fmt.Sprint(clanInfo.WarWins),
-				fmt.Sprint(clanInfo.ClanPoints),
-				fmt.Sprint(townHall[14]),
-			})
-			return nil
-		})
-	}
-	if err := goroutine.GoAndWait(funcs...); err != nil {
-		return nil, err
-	}
-	return &parser.LeagueGroupRsp{
-		League: warLeague,
-		Season: time.SeasonStr(leagueGroup.Season),
-		Clans:  sortClans(resClans),
-	}, nil
 }
