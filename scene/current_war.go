@@ -1,19 +1,18 @@
 package scene
 
 import (
+	"fmt"
 	"go_coc/cache"
 	"go_coc/client"
 	"go_coc/dao"
 	"go_coc/parser"
-	"log"
 )
 
 // CurrentWar 获取当前部落战
 func CurrentWar(clan string) (*parser.ClanWar, error) {
 	// 读缓存，若不存在，则读官方api
-	cur, err := cache.CurrentWar(clan[1:])
+	cur, err := cache.CurrentWar("#" + clan)
 	if err != nil {
-		log.Printf("cache.CurrentWar err: %v", err)
 		return nil, err
 	}
 	if cur != nil {
@@ -30,8 +29,13 @@ func CurrentWar(clan string) (*parser.ClanWar, error) {
 		return nil, err
 	}
 	// 插入数据到数据库
-	if err := dao.InsertCurrentWar(currentWar.Clan.Tag, currentWar.StartTime, res); err != nil {
-		return nil, err
+	if currentWar.Clan == nil {
+		return nil, fmt.Errorf("currentWar.Clan == nil")
+	}
+	if currentWar.Clan != nil {
+		if err := dao.InsertCurrentWar(currentWar.Clan.Tag, currentWar.StartTime, res); err != nil {
+			return nil, err
+		}
 	}
 	return currentWar, nil
 }

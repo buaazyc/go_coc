@@ -2,12 +2,14 @@ package scene
 
 import (
 	"fmt"
-	"log"
 	"sort"
 	"strconv"
+	"sync"
 
 	"go_coc/client"
+	"go_coc/goroutine"
 	"go_coc/parser"
+	"go_coc/time"
 )
 
 // LeagueGroup 获取部落联赛分组
@@ -25,39 +27,6 @@ func LeagueGroup(clan string) (*parser.ClanWarLeagueGroup, error) {
 	return leagueGroup, nil
 }
 
-// LeagueGroupRsp 在前端显示联赛分组信息
-func LeagueGroupRsp(leagueGroup *parser.ClanWarLeagueGroup) (*parser.LeagueGroupRsp, error) {
-	if leagueGroup == nil {
-		return nil, fmt.Errorf("leagueGroup == nil")
-	}
-	// 每个部落获取其基本信息
-	var resClans [][]string
-	var warLeague string
-	for _, clan := range leagueGroup.Clans {
-		townHall := countTownHallLevel(&clan)
-		clanInfo, err := ClanInfo(clan.Tag[1:])
-		warLeague = clanInfo.WarLeague.Name
-		if err != nil {
-			log.Printf("get ClanInfo err : %v", err)
-			continue
-		}
-		resClans = append(resClans, []string{
-			clan.Name,
-			clan.Tag,
-			fmt.Sprint(clan.ClanLevel),
-			fmt.Sprint(clanInfo.WarWinStreak),
-			fmt.Sprint(clanInfo.WarWins),
-			fmt.Sprint(clanInfo.ClanPoints),
-			fmt.Sprint(townHall[14]),
-		})
-	}
-	return &parser.LeagueGroupRsp{
-		League: warLeague,
-		Season: seasonStr(leagueGroup.Season),
-		Clans:  sortClans(resClans),
-	}, nil
-}
-
 // countTownHallLevel 统计参战的大本等级统计
 func countTownHallLevel(clan *parser.ClanWarLeagueClan) map[uint32]uint32 {
 	res := make(map[uint32]uint32)
@@ -65,11 +34,6 @@ func countTownHallLevel(clan *parser.ClanWarLeagueClan) map[uint32]uint32 {
 		res[member.TownHallLevel]++
 	}
 	return res
-}
-
-// seasonStr 将赛季的年月以汉字形式输出
-func seasonStr(s string) string {
-	return fmt.Sprintf("%v年%v月", s[:4], s[5:])
 }
 
 // sortClans 将部落排序
@@ -81,4 +45,47 @@ func sortClans(clans [][]string) [][]string {
 		return a > b
 	})
 	return clans
+}
+
+// LeagueGroupRsp 并发形式
+func LeagueGroupRsp(leagueGroup *parser.ClanWarLeagueGroup) (*parser.LeagueGroupRsp, error) {
+	if leagueGroup == nil {
+		return nil, fmt.Errorf("leagueGroup == nil")
+	}
+	// 每个部落获取其基本信息
+	var resClans [][]string
+	var warLeague string
+	var lock sync.Mutex
+	var funcs []func() error
+	for _, c := range leagueGroup.Clans {
+		clan := c
+		funcs = append(funcs, func() error {
+			clanInfo, err := ClanInfo(clan.Tag[1:])
+			warLeague = clanInfo.WarLeague.Name
+			if err != nil {
+				return err
+			}
+			townHall := countTownHallLevel(clan)
+			lock.Lock()
+			defer lock.Unlock()
+			resClans = append(resClans, []string{
+				clan.Name,
+				clan.Tag,
+				fmt.Sprint(clan.ClanLevel),
+				fmt.Sprint(clanInfo.WarWinStreak),
+				fmt.Sprint(clanInfo.WarWins),
+				fmt.Sprint(clanInfo.ClanPoints),
+				fmt.Sprint(townHall[14]),
+			})
+			return nil
+		})
+	}
+	if err := goroutine.GoAndWait(funcs...); err != nil {
+		return nil, err
+	}
+	return &parser.LeagueGroupRsp{
+		League: warLeague,
+		Season: time.SeasonStr(leagueGroup.Season),
+		Clans:  sortClans(resClans),
+	}, nil
 }

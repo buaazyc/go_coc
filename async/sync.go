@@ -1,10 +1,12 @@
 package async
 
 import (
-	"go_coc/dao"
-	"go_coc/scene"
 	"log"
 	"time"
+
+	"go_coc/dao"
+	"go_coc/goroutine"
+	"go_coc/scene"
 )
 
 // Init 启动定时任务
@@ -12,7 +14,7 @@ func Init() error {
 	if err := sync5Min(); err != nil {
 		return err
 	}
-	GoWithRecover(func() {
+	goroutine.GoWithRecover(func() {
 		for range time.Tick(time.Minute * 5) {
 			_ = sync5Min()
 		}

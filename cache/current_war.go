@@ -7,7 +7,7 @@ import (
 
 // CurrentWar 从缓存中读取CurrentWar
 func CurrentWar(clan string) (*parser.ClanWar, error) {
-	res, err := dao.QueryLastCurrentWar(clan)
+	res, err := queryLastWar(clan)
 	if err != nil {
 		return nil, err
 	}
@@ -20,4 +20,19 @@ func CurrentWar(clan string) (*parser.ClanWar, error) {
 		return nil, err
 	}
 	return currentWar, nil
+}
+
+// queryLastWar 从数据库中获取最新的部落战
+func queryLastWar(clan string) (string, error) {
+	wars, err := dao.QueryAllWarsFor(clan)
+	if err != nil {
+		return "", nil
+	}
+	last := &dao.CurrentWar{}
+	for _, war := range wars {
+		if last.Time < war.Time {
+			last = war
+		}
+	}
+	return last.Info, nil
 }

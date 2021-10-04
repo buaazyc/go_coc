@@ -16,26 +16,26 @@ func CurrentWar(info string) (*ClanWar, error) {
 
 // ClanWar 当前部落战信息
 type ClanWar struct {
-	Clan                 WarClan `json:"clan"`
-	Opponent             WarClan `json:"opponent"`
-	TeamSize             uint32  `json:"teamSize"`
-	StartTime            string  `json:"startTime"`
-	EndTime              string  `json:"endTime"`
-	State                string  `json:"state"`
-	PreparationStartTime string  `json:"preparationStartTime"`
+	Clan                 *WarClan `json:"clan"`
+	Opponent             *WarClan `json:"opponent"`
+	TeamSize             uint32   `json:"teamSize"`
+	StartTime            string   `json:"startTime"`
+	EndTime              string   `json:"endTime"`
+	State                string   `json:"state"`
+	PreparationStartTime string   `json:"preparationStartTime"`
 }
 
 // WarClan 参战部落信息
 type WarClan struct {
-	DestructionPercentage float64         `json:"destructionPercentage"`
-	Tag                   string          `json:"tag"`
-	Name                  string          `json:"name"`
-	BadgeUrls             BadgeUrl        `json:"badgeUrls"`
-	ClanLevel             uint32          `json:"clanLevel"`
-	Attacks               uint32          `json:"attacks"`
-	Stars                 uint32          `json:"stars"`
-	ExpEarned             uint32          `json:"expEarned"`
-	Members               []ClanWarMember `json:"members"`
+	DestructionPercentage float64          `json:"destructionPercentage"`
+	Tag                   string           `json:"tag"`
+	Name                  string           `json:"name"`
+	BadgeUrls             *BadgeUrl        `json:"badgeUrls"`
+	ClanLevel             uint32           `json:"clanLevel"`
+	Attacks               uint32           `json:"attacks"`
+	Stars                 uint32           `json:"stars"`
+	ExpEarned             uint32           `json:"expEarned"`
+	Members               []*ClanWarMember `json:"members"`
 }
 
 // BadgeUrl 部落图标
@@ -47,13 +47,13 @@ type BadgeUrl struct {
 
 // ClanWarMember 参战成员信息
 type ClanWarMember struct {
-	Tag                string          `json:"tag"`
-	Name               string          `json:"name"`
-	MapPosition        uint32          `json:"mapPosition"`
-	TownhallLevel      uint32          `json:"townhallLevel"`
-	OpponentAttacks    uint32          `json:"opponentAttacks"`
-	BestOpponentAttack ClanWarAttack   `json:"bestOpponentAttack"`
-	Attacks            []ClanWarAttack `json:"attacks"`
+	Tag                string           `json:"tag"`
+	Name               string           `json:"name"`
+	MapPosition        uint32           `json:"mapPosition"`
+	TownhallLevel      uint32           `json:"townhallLevel"`
+	OpponentAttacks    uint32           `json:"opponentAttacks"`
+	BestOpponentAttack *ClanWarAttack   `json:"bestOpponentAttack"`
+	Attacks            []*ClanWarAttack `json:"attacks"`
 }
 
 // ClanWarAttack 部落战进攻

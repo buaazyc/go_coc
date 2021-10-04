@@ -10,9 +10,9 @@ import (
 	"go_coc/constant"
 )
 
-// httpClient 超时时间设置为4s
+// httpClient 超时时间设置
 var httpClient = &http.Client{
-	Timeout: time.Second * 4,
+	Timeout: time.Second * constant.HttpClientTimeOut,
 }
 
 // SendAPI 向coc开发者api发送http请求

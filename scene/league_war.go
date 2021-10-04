@@ -6,6 +6,7 @@ import (
 
 	"go_coc/client"
 	"go_coc/parser"
+	"go_coc/time"
 )
 
 // LeagueWarRsp 汇总联赛战绩
@@ -32,7 +33,7 @@ func LeagueWarRsp(clan string) (*parser.LeagueWarRsp, error) {
 	members := getMembers(wars)
 	return &parser.LeagueWarRsp{
 		Name:    wars[0].Name,
-		Season:  seasonStr(clanWarLeagueGroup.Season),
+		Season:  time.SeasonStr(clanWarLeagueGroup.Season),
 		League:  clanInfo.WarLeague.Name,
 		Members: members,
 	}, nil
@@ -67,6 +68,7 @@ func getValidWar(clan string, clanWarLeagueGroup *parser.ClanWarLeagueGroup) ([]
 				break
 			}
 			war, err := LeagueWar(warTag[1:])
+			// log.Printf("%+v", war)
 			if err != nil {
 				log.Printf("%v", err)
 				continue
@@ -77,10 +79,10 @@ func getValidWar(clan string, clanWarLeagueGroup *parser.ClanWarLeagueGroup) ([]
 			}
 			// 保存本部落相关战绩
 			if war.Clan.Tag[1:] == clan {
-				wars = append(wars, &war.Clan)
+				wars = append(wars, war.Clan)
 			}
 			if war.Opponent.Tag[1:] == clan {
-				wars = append(wars, &war.Opponent)
+				wars = append(wars, war.Opponent)
 			}
 		}
 	}
@@ -104,15 +106,15 @@ func setStar(stars uint32, info *parser.AttackInfo) {
 }
 
 // getMembers 根据每一场战绩wars，提取各个成员战绩
-func getMembers(wars []*parser.WarClan) map[string]*parser.LeagueWarMember {
-	members := make(map[string]*parser.LeagueWarMember)
+func getMembers(wars []*parser.WarClan) map[string]*parser.WarMember {
+	members := make(map[string]*parser.WarMember)
 	// 遍历每一场
 	for _, war := range wars {
 		// 遍历每一场的每一个成员
 		for _, member := range war.Members {
 			// 如果是初次读取数据，需要初始化成员变量
 			if members[member.Tag] == nil {
-				members[member.Tag] = &parser.LeagueWarMember{}
+				members[member.Tag] = &parser.WarMember{}
 				members[member.Tag].AttackInfo = &parser.AttackInfo{}
 				members[member.Tag].Defend = &parser.Defend{}
 				members[member.Tag].Name = member.Name
@@ -128,9 +130,11 @@ func getMembers(wars []*parser.WarClan) map[string]*parser.LeagueWarMember {
 			// 总场次
 			members[member.Tag].JoinNum++
 			// 防守情况
-			members[member.Tag].Defend.SumStars += member.BestOpponentAttack.Stars
-			if member.BestOpponentAttack.Stars == 3 {
-				members[member.Tag].Defend.Three++
+			if member.BestOpponentAttack != nil {
+				members[member.Tag].Defend.SumStars += member.BestOpponentAttack.Stars
+				if member.BestOpponentAttack.Stars == 3 {
+					members[member.Tag].Defend.Three++
+				}
 			}
 		}
 	}
@@ -142,7 +146,7 @@ func getMembers(wars []*parser.WarClan) map[string]*parser.LeagueWarMember {
 }
 
 // calScore 计算每个成员的得分情况
-func calScore(member *parser.LeagueWarMember) uint32 {
+func calScore(member *parser.WarMember) uint32 {
 	var score uint32
 	score += 30 * (member.AttackInfo.AttackNum / member.JoinNum)
 	score += 15 * (member.AttackInfo.Three / member.JoinNum)

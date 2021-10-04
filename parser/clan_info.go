@@ -12,29 +12,29 @@ func ClanInfo(info string) (*Clan, error) {
 }
 
 type Clan struct {
-	Tag                    string       `json:"tag"`
-	ClanLevel              uint32       `json:"clanLevel"`
-	WarWinStreak           uint32       `json:"warWinStreak"`
-	WarWins                uint32       `json:"warWins"`
-	WarTies                uint32       `json:"warTies"`
-	WarLosses              uint32       `json:"warLosses"`
-	ClanPoints             uint32       `json:"clanPoints"`
-	Name                   string       `json:"name"`
-	Members                uint32       `json:"members"`
-	Type                   string       `json:"type"`
-	Description            string       `json:"description"`
-	ClanVersusPoints       uint32       `json:"clanVersusPoints"`
-	RequiredTrophies       uint32       `json:"requiredTrophies"`
-	RequiredVersusTrophies uint32       `json:"requiredVersusTrophies"`
-	RequiredTownhallLevel  uint32       `json:"requiredTownhallLevel"`
-	IsWarLogPublic         bool         `json:"isWarLogPublic"`
-	WarFrequency           string       `json:"warFrequency"`
-	ChatLanguage           Language     `json:"chatLanguage"`
-	WarLeague              WarLeague    `json:"warLeague"`
-	MemberList             []ClanMember `json:"memberList"`
-	Labels                 []Label      `json:"labels"`
-	Location               Location     `json:"location"`
-	BadgeUrls              BadgeUrl     `json:"badgeUrls"`
+	Tag                    string        `json:"tag"`
+	ClanLevel              uint32        `json:"clanLevel"`
+	WarWinStreak           uint32        `json:"warWinStreak"`
+	WarWins                uint32        `json:"warWins"`
+	WarTies                uint32        `json:"warTies"`
+	WarLosses              uint32        `json:"warLosses"`
+	ClanPoints             uint32        `json:"clanPoints"`
+	Name                   string        `json:"name"`
+	Members                uint32        `json:"members"`
+	Type                   string        `json:"type"`
+	Description            string        `json:"description"`
+	ClanVersusPoints       uint32        `json:"clanVersusPoints"`
+	RequiredTrophies       uint32        `json:"requiredTrophies"`
+	RequiredVersusTrophies uint32        `json:"requiredVersusTrophies"`
+	RequiredTownhallLevel  uint32        `json:"requiredTownhallLevel"`
+	IsWarLogPublic         bool          `json:"isWarLogPublic"`
+	WarFrequency           string        `json:"warFrequency"`
+	ChatLanguage           *Language     `json:"chatLanguage"`
+	WarLeague              *WarLeague    `json:"warLeague"`
+	MemberList             []*ClanMember `json:"memberList"`
+	Labels                 []*Label      `json:"labels"`
+	Location               *Location     `json:"location"`
+	BadgeUrls              *BadgeUrl     `json:"badgeUrls"`
 }
 
 type WarLeague struct {
@@ -57,29 +57,29 @@ type Location struct {
 }
 
 type Label struct {
-	Name     string   `json:"name"`
-	ID       uint32   `json:"id"`
-	IconUrls IconUrls `json:"iconUrls"`
+	Name     string    `json:"name"`
+	ID       uint32    `json:"id"`
+	IconUrls *IconUrls `json:"iconUrls"`
 }
 
 type ClanMember struct {
-	Tag               string `json:"tag"`
-	Name              string `json:"name"`
-	Role              string `json:"role"`
-	ExpLevel          uint32 `json:"expLevel"`
-	ClanRank          uint32 `json:"clanRank"`
-	PreviousClanRank  uint32 `json:"previousClanRank"`
-	Donations         uint32 `json:"donations"`
-	DonationsReceived uint32 `json:"donationsReceived"`
-	Trophies          uint32 `json:"trophies"`
-	VersusTrophies    uint32 `json:"versusTrophies"`
-	League            League `json:"league"`
+	Tag               string  `json:"tag"`
+	Name              string  `json:"name"`
+	Role              string  `json:"role"`
+	ExpLevel          uint32  `json:"expLevel"`
+	ClanRank          uint32  `json:"clanRank"`
+	PreviousClanRank  uint32  `json:"previousClanRank"`
+	Donations         uint32  `json:"donations"`
+	DonationsReceived uint32  `json:"donationsReceived"`
+	Trophies          uint32  `json:"trophies"`
+	VersusTrophies    uint32  `json:"versusTrophies"`
+	League            *League `json:"league"`
 }
 
 type League struct {
-	Name     string   `json:"name"`
-	ID       uint32   `json:"id"`
-	IconUrls IconUrls `json:"iconUrls"`
+	Name     string    `json:"name"`
+	ID       uint32    `json:"id"`
+	IconUrls *IconUrls `json:"iconUrls"`
 }
 
 type IconUrls struct {

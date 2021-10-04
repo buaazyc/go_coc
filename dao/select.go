@@ -1,6 +1,8 @@
 package dao
 
-import "log"
+import (
+	"log"
+)
 
 // QueryAllClanTags 获取数据库current_war表中所有等clanTags
 func QueryAllClanTags() ([]string, error) {
@@ -33,30 +35,21 @@ func QueryAllClanTags() ([]string, error) {
 	return res, nil
 }
 
-// QueryLastCurrentWar 从数据库中获取最新的部落战
-func QueryLastCurrentWar(clan string) (string, error) {
-	sql := `SELECT start_time, war_info FROM current_war WHERE clan_tag = ?;`
+// QueryAllWarsFor 从数据库中获取特定部落的所有战绩
+func QueryAllWarsFor(clan string) ([]*CurrentWar, error) {
+	sql := `SELECT clan_tag, start_time, war_info FROM current_war WHERE clan_tag = ?;`
 	rows, err := mysqlProxy.Query(sql, clan)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	var (
-		lastTime    string
-		lastWarInfo string
-	)
+	var res []*CurrentWar
 	for rows.Next() {
-		var (
-			startTime string
-			warInfo   string
-		)
-		if err := rows.Scan(&startTime, &warInfo); err != nil {
+		row := &CurrentWar{}
+		if err := rows.Scan(&row.Tag, &row.Time, &row.Info); err != nil {
 			log.Printf("rows.Scan err: %v", err)
 			continue
 		}
-		if lastTime == "" || lastTime < startTime {
-			lastTime = startTime
-			lastWarInfo = warInfo
-		}
+		res = append(res, row)
 	}
-	return lastWarInfo, nil
+	return res, nil
 }

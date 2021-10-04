@@ -11,6 +11,12 @@ import (
 
 var mysqlProxy *sql.DB
 
+type CurrentWar struct {
+	Tag  string `db:"clan_tag"`
+	Time string `db:"start_time"`
+	Info string `db:"war_info"`
+}
+
 // ConnectDB 连接数据库
 func ConnectDB() (err error) {
 	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v",

@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
+	"go_coc/constant"
 	"go_coc/scene"
 )
 
@@ -16,9 +18,10 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	req.ParseForm()
 	use := req.FormValue("use")
 	clan := req.FormValue("clan")
-	if len(clan) < 2 {
+	if len(clan) < constant.MinClanLen {
 		return
 	}
+	clan = strings.ToTitle(clan)
 	log.Printf("use: %v clan: %v", use, clan)
 	// 根据use不同，触发不同的场景
 	switch use {
@@ -26,40 +29,47 @@ func handler(w http.ResponseWriter, req *http.Request) {
 		cur, err := scene.CurrentWar(clan[1:])
 		if err != nil {
 			log.Printf("cache.CurrentWar err: %v", err)
+			errRsp(w, 404)
 			return
 		}
 		res, err := json.Marshal(cur)
 		if err != nil {
-			log.Printf("err: %v", err)
+			log.Printf("json.Marshal err: %v", err)
+			errRsp(w, 404)
 			return
 		}
 		fmt.Fprintf(w, "%+v", string(res))
 	case "leaguegroup":
 		group, err := scene.LeagueGroup(clan[1:])
 		if err != nil {
-			log.Printf("cache.CurrentWar err: %v", err)
+			log.Printf("scene.LeagueGroup err: %v", err)
+			errRsp(w, 404)
 			return
 		}
 		groupRsp, err := scene.LeagueGroupRsp(group)
 		if err != nil {
-			log.Printf("cache.CurrentWar err: %v", err)
+			log.Printf("scene.LeagueGroupRsp err: %v", err)
+			errRsp(w, 404)
 			return
 		}
 		res, err := json.Marshal(groupRsp)
 		if err != nil {
-			log.Printf("err: %v", err)
+			log.Printf("json.Marshal err: %v", err)
+			errRsp(w, 404)
 			return
 		}
 		fmt.Fprintf(w, "%v", string(res))
 	case "leaguewar":
 		leaguewar, err := scene.LeagueWarRsp(clan[1:])
 		if err != nil {
-			log.Printf("cache.CurrentWar err: %v", err)
+			log.Printf("scene.LeagueWarRsp err: %v", err)
+			errRsp(w, 404)
 			return
 		}
 		res, err := json.Marshal(leaguewar)
 		if err != nil {
-			log.Printf("err: %v", err)
+			log.Printf("json.Marshal err: %v", err)
+			errRsp(w, 404)
 			return
 		}
 		fmt.Fprintf(w, "%+v", string(res))
@@ -76,4 +86,13 @@ func addHeader(f http.HandlerFunc) http.HandlerFunc {
 		w.Header().Set("content-type", "application/json;charset=UTF-8") // 返回数据格式是json
 		f(w, r)
 	}
+}
+
+type ErrRsp struct {
+	Constructor uint32 `json:"constructor"`
+}
+
+func errRsp(w http.ResponseWriter, errCode uint32) {
+	res, _ := json.Marshal(ErrRsp{Constructor: errCode})
+	fmt.Fprintf(w, "%+v", string(res))
 }

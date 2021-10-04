@@ -1,13 +1,19 @@
 package parser
 
 type LeagueWarRsp struct {
-	Name    string                      `json:"name"`
-	Season  string                      `json:"season"`
-	League  string                      `json:"league"`
-	Members map[string]*LeagueWarMember `json:"members"`
+	Name    string                `json:"name"`
+	Season  string                `json:"season"`
+	League  string                `json:"league"`
+	Members map[string]*WarMember `json:"members"`
 }
 
-type LeagueWarMember struct {
+type SumWarRsp struct {
+	Name    string                `json:"name"`
+	Season  string                `json:"season"`
+	Members map[string]*WarMember `json:"members"`
+}
+
+type WarMember struct {
 	Name       string      `json:"name"`
 	AttackInfo *AttackInfo `json:"attackInfo"`
 	Defend     *Defend     `json:"defend"`
