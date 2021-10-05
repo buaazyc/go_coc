@@ -41,7 +41,7 @@ func currentWar() error {
 		if len(clan) < 2 {
 			continue
 		}
-		if _, err := scene.CurrentWar(clan[1:]); err != nil {
+		if _, err := scene.CurrentWar(clan); err != nil {
 			log.Printf("scene.CurrentWar err: %v", err)
 			continue
 		}

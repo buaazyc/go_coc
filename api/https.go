@@ -14,6 +14,7 @@ import (
 
 // handler 服务监听函数
 func handler(w http.ResponseWriter, req *http.Request) {
+	// 校验和解析
 	if req.Method != "GET" {
 		log.Printf("%+v", req)
 		return
@@ -25,24 +26,19 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	}
 	clan = strings.ToTitle(clan)
 	log.Printf("use: %v clan: %v", use, clan)
+
 	// 根据use不同，触发不同的场景
 	switch use {
 	case "currentwar":
-		cur, err := scene.CurrentWar(clan[1:])
+		cur, err := scene.CurrentWar(clan)
 		if err != nil {
 			log.Printf("cache.CurrentWar err: %v", err)
 			errRsp(w, 404)
 			return
 		}
-		res, err := json.Marshal(cur)
-		if err != nil {
-			log.Printf("json.Marshal err: %v", err)
-			errRsp(w, 404)
-			return
-		}
-		fmt.Fprintf(w, "%+v", string(res))
+		reply(w, cur)
 	case "leaguegroup":
-		group, err := scene.LeagueGroup(clan[1:])
+		group, err := scene.LeagueGroup(clan)
 		if err != nil {
 			log.Printf("scene.LeagueGroup err: %v", err)
 			errRsp(w, 404)
@@ -54,27 +50,15 @@ func handler(w http.ResponseWriter, req *http.Request) {
 			errRsp(w, 404)
 			return
 		}
-		res, err := json.Marshal(groupRsp)
-		if err != nil {
-			log.Printf("json.Marshal err: %v", err)
-			errRsp(w, 404)
-			return
-		}
-		fmt.Fprintf(w, "%v", string(res))
+		reply(w, groupRsp)
 	case "leaguewar":
-		leaguewar, err := scene.LeagueWarRsp(clan[1:])
+		leaguewar, err := scene.LeagueWarRsp(clan)
 		if err != nil {
 			log.Printf("scene.LeagueWarRsp err: %v", err)
 			errRsp(w, 404)
 			return
 		}
-		res, err := json.Marshal(leaguewar)
-		if err != nil {
-			log.Printf("json.Marshal err: %v", err)
-			errRsp(w, 404)
-			return
-		}
-		fmt.Fprintf(w, "%+v", string(res))
+		reply(w, leaguewar)
 	case "season":
 		season, err := scene.CurSeason(clan)
 		if err != nil {
@@ -82,13 +66,7 @@ func handler(w http.ResponseWriter, req *http.Request) {
 			errRsp(w, 404)
 			return
 		}
-		res, err := json.Marshal(season)
-		if err != nil {
-			log.Printf("json.Marshal err: %v", err)
-			errRsp(w, 404)
-			return
-		}
-		fmt.Fprintf(w, "%+v", string(res))
+		reply(w, season)
 	default:
 	}
 }
@@ -105,10 +83,20 @@ func addHeader(f http.HandlerFunc) http.HandlerFunc {
 }
 
 type ErrRsp struct {
-	Constructor uint32 `json:"constructor"`
+	ErrCode uint32 `json:"errCode"`
 }
 
 func errRsp(w http.ResponseWriter, errCode uint32) {
-	res, _ := json.Marshal(ErrRsp{Constructor: errCode})
+	res, _ := json.Marshal(ErrRsp{ErrCode: errCode})
+	fmt.Fprintf(w, "%+v", string(res))
+}
+
+func reply(w http.ResponseWriter, v interface{}) {
+	res, err := json.Marshal(v)
+	if err != nil {
+		log.Printf("json.Marshal err: %v", err)
+		errRsp(w, 404)
+		return
+	}
 	fmt.Fprintf(w, "%+v", string(res))
 }

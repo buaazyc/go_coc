@@ -7,7 +7,7 @@ import (
 
 func ClanInfo(clan string) (*parser.Clan, error) {
 	// 向官方发送请求，获取最新数据
-	res, err := client.SendAPI("/clans/%23" + clan)
+	res, err := client.SendAPI("/clans/%23" + clan[1:])
 	if err != nil {
 		return nil, err
 	}

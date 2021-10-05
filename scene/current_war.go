@@ -11,7 +11,7 @@ import (
 // CurrentWar 获取当前部落战
 func CurrentWar(clan string) (*parser.ClanWar, error) {
 	// 读缓存，若不存在，则读官方api
-	cur, err := cache.CurrentWar("#" + clan)
+	cur, err := cache.CurrentWar(clan)
 	if err != nil {
 		return nil, err
 	}
@@ -19,7 +19,7 @@ func CurrentWar(clan string) (*parser.ClanWar, error) {
 		return cur, nil
 	}
 	// 向官方发送请求，获取最新数据
-	res, err := client.SendAPI("/clans/%23" + clan + "/currentwar")
+	res, err := client.SendAPI("/clans/%23" + clan[1:] + "/currentwar")
 	if err != nil {
 		return nil, err
 	}

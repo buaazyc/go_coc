@@ -15,7 +15,7 @@ import (
 // LeagueGroup 获取部落联赛分组
 func LeagueGroup(clan string) (*parser.ClanWarLeagueGroup, error) {
 	// 向官方发送请求，获取最新数据
-	res, err := client.SendAPI("/clans/%23" + clan + "/currentwar/leaguegroup")
+	res, err := client.SendAPI("/clans/%23" + clan[1:] + "/currentwar/leaguegroup")
 	if err != nil {
 		return nil, err
 	}
@@ -23,6 +23,9 @@ func LeagueGroup(clan string) (*parser.ClanWarLeagueGroup, error) {
 	leagueGroup, err := parser.LeagueGroup(res)
 	if err != nil {
 		return nil, err
+	}
+	if leagueGroup.Season == "" {
+		return nil, fmt.Errorf("leaguegroup not found")
 	}
 	return leagueGroup, nil
 }
@@ -42,7 +45,7 @@ func LeagueGroupRsp(leagueGroup *parser.ClanWarLeagueGroup) (*parser.LeagueGroup
 	for _, c := range leagueGroup.Clans {
 		clan := c
 		funcs = append(funcs, func() error {
-			clanInfo, err := ClanInfo(clan.Tag[1:])
+			clanInfo, err := ClanInfo(clan.Tag)
 			warLeague = clanInfo.WarLeague.Name
 			if err != nil {
 				return err

@@ -27,5 +27,5 @@ golang
 
 ## 贡献者
 
-BiliBili: coc兔子
+BiliBili: coc兔子  
 Email: ychuanzhang@tencent.com

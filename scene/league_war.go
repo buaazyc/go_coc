@@ -46,7 +46,7 @@ func LeagueWarRsp(clan string) (*parser.LeagueWarRsp, error) {
 // LeagueWar 根据warTag获取战绩
 func LeagueWar(war string) (*parser.ClanWar, error) {
 	// 向官方发送请求，获取最新数据
-	res, err := client.SendAPI("/clanwarleagues/wars/%23" + war)
+	res, err := client.SendAPI("/clanwarleagues/wars/%23" + war[1:])
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func getValidWar(clan string, clanWarLeagueGroup *parser.ClanWarLeagueGroup) ([]
 				if warTag == "#0" {
 					return nil
 				}
-				war, err := LeagueWar(warTag[1:])
+				war, err := LeagueWar(warTag)
 				if err != nil {
 					return fmt.Errorf("%v", err)
 				}
@@ -88,10 +88,10 @@ func getValidWar(clan string, clanWarLeagueGroup *parser.ClanWarLeagueGroup) ([]
 				// 保存本部落相关战绩
 				lock.Lock()
 				defer lock.Unlock()
-				if war.Clan.Tag[1:] == clan {
+				if war.Clan.Tag == clan {
 					wars = append(wars, war.Clan)
 				}
-				if war.Opponent.Tag[1:] == clan {
+				if war.Opponent.Tag == clan {
 					wars = append(wars, war.Opponent)
 				}
 				return nil
