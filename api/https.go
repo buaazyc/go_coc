@@ -67,6 +67,14 @@ func handler(w http.ResponseWriter, req *http.Request) {
 			return
 		}
 		reply(w, season)
+	case "members":
+		members, err := scene.Members(clan)
+		if err != nil {
+			log.Printf("scene.Members err: %v", err)
+			errRsp(w, 404)
+			return
+		}
+		reply(w, members)
 	default:
 	}
 }

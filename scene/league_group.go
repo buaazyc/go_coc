@@ -46,6 +46,9 @@ func LeagueGroupRsp(leagueGroup *parser.ClanWarLeagueGroup) (*parser.LeagueGroup
 		clan := c
 		funcs = append(funcs, func() error {
 			clanInfo, err := ClanInfo(clan.Tag)
+			if clanInfo.WarLeague == nil {
+				return fmt.Errorf("clanInfo.WarLeague == nil")
+			}
 			warLeague = clanInfo.WarLeague.Name
 			if err != nil {
 				return err

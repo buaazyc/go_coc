@@ -1,5 +1,7 @@
 package constant
 
+import "time"
+
 // CocBaseURL coc官方api
 const CocBaseURL = "https://api.clashofclans.com/v1"
 
@@ -7,4 +9,7 @@ const CocBaseURL = "https://api.clashofclans.com/v1"
 const MinClanLen = 2
 
 // HttpClientTimeOut 最为客户端发送http请求时，超时时间，单位s
-const HttpClientTimeOut = 4
+const HttpClientTimeOut = 10
+
+// SyncTime 后台定时任务都刷新周期
+const SyncTime = time.Minute * 8

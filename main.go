@@ -4,12 +4,15 @@ import (
 	"log"
 
 	"go_coc/api"
+	"go_coc/async"
 	"go_coc/config"
 	"go_coc/dao"
 )
 
 func develop() {
-
+	// res, _ := client.SendAPI("/clans/%23R2JRG9PQ")
+	// log.Printf("%+v", res)
+	// scene.PlayerInfo("#VGPQ28C8")
 }
 
 func main() {
@@ -24,9 +27,9 @@ func main() {
 		log.Printf("ConnectDB err: %v", err)
 	}
 	// 异步定时任务
-	// if err := async.Init(); err != nil {
-	// 	log.Printf("async.Init err: %v", err)
-	// }
+	if err := async.Init(); err != nil {
+		log.Printf("async.Init err: %v", err)
+	}
 	// 运行开发时的临时代码
 	develop()
 	// 启动服务

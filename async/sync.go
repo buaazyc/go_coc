@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 
+	"go_coc/constant"
 	"go_coc/dao"
 	"go_coc/goroutine"
 	"go_coc/scene"
@@ -11,19 +12,19 @@ import (
 
 // Init 启动定时任务
 func Init() error {
-	if err := sync5Min(); err != nil {
+	if err := sync(); err != nil {
 		return err
 	}
 	goroutine.GoWithRecover(func() {
-		for range time.Tick(time.Minute * 5) {
-			_ = sync5Min()
+		for range time.Tick(constant.SyncTime) {
+			_ = sync()
 		}
 	})
 	return nil
 }
 
-// sync5Min 每5分钟刷新一次
-func sync5Min() error {
+// sync 刷新任务都放在这里
+func sync() error {
 	if err := currentWar(); err != nil {
 		return err
 	}

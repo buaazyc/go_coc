@@ -1,6 +1,7 @@
 package scene
 
 import (
+	"fmt"
 	"go_coc/client"
 	"go_coc/parser"
 )
@@ -18,4 +19,15 @@ func ClanInfo(clan string) (*parser.Clan, error) {
 	}
 	// log.Printf("%+v", info)
 	return info, nil
+}
+
+func Members(clan string) ([]*parser.ClanMember, error) {
+	clanInfo, err := ClanInfo(clan)
+	if err != nil {
+		return nil, err
+	}
+	if clanInfo.MemberList == nil {
+		return nil, fmt.Errorf("clanInfo.MemberList == nil")
+	}
+	return clanInfo.MemberList, nil
 }
