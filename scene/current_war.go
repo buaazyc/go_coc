@@ -23,10 +23,8 @@ func CurrentWar(clan string) (*parser.ClanWar, error) {
 	if currentWar.Clan == nil {
 		return nil, fmt.Errorf("currentWar.Clan[:%v] == nil", clan)
 	}
-	if currentWar.Clan != nil {
-		if err := dao.InsertCurrentWar(currentWar.Clan.Tag, currentWar.StartTime, res); err != nil {
-			return nil, err
-		}
+	if err := dao.InsertCurrentWar(currentWar.Clan.Tag, currentWar.StartTime, res); err != nil {
+		return nil, err
 	}
 	return currentWar, nil
 }

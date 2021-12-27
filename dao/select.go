@@ -38,8 +38,8 @@ func QueryActiveClanTags() ([]string, error) {
 	return res, nil
 }
 
-// QueryAllWarsFor 从数据库中获取特定部落的所有战绩
-func QueryAllWarsFor(clan string) ([]*CurrentWar, error) {
+// QueryAllWars 从数据库中获取特定部落的所有战绩
+func QueryAllWars(clan string) ([]*CurrentWar, error) {
 	sql := `SELECT clan_tag, start_time, war_info FROM current_war WHERE clan_tag = ?;`
 	rows, err := mysqlProxy.Query(sql, clan)
 	if err != nil {
@@ -55,4 +55,27 @@ func QueryAllWarsFor(clan string) ([]*CurrentWar, error) {
 		res = append(res, row)
 	}
 	return res, nil
+}
+
+// QueryNewestWar 从数据库中获取特定部落最新的战绩
+func QueryNewestWar(clan string) (*CurrentWar, error) {
+	sql := `SELECT clan_tag, start_time, war_info FROM current_war 
+	WHERE clan_tag = ? ORDER BY create_time DESC LIMIT 1;`
+	rows, err := mysqlProxy.Query(sql, clan)
+	if err != nil {
+		return nil, err
+	}
+	var res []*CurrentWar
+	for rows.Next() {
+		row := &CurrentWar{}
+		if err := rows.Scan(&row.Tag, &row.Time, &row.Info); err != nil {
+			log.Printf("rows.Scan err: %v", err)
+			continue
+		}
+		res = append(res, row)
+	}
+	if len(res) == 0 {
+		return nil, nil
+	}
+	return res[0], nil
 }

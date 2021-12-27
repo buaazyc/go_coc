@@ -34,7 +34,7 @@ func CurSeason(clan string) (*parser.SeasonRsp, error) {
 
 // queryMonthWars 从数据库中获取部落整个月的战绩
 func queryMonthWars(clan string, season string) ([]*parser.WarClan, error) {
-	wars, err := dao.QueryAllWarsFor(clan)
+	wars, err := dao.QueryAllWars(clan)
 	if err != nil {
 		return nil, err
 	}

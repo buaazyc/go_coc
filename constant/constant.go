@@ -12,4 +12,10 @@ const MinClanLen = 2
 const HttpClientTimeOut = 10
 
 // SyncTime 后台定时任务都刷新周期
-const SyncTime = time.Minute * 8
+const (
+	SyncLowFrequencyTime  = time.Minute * 10
+	SyncHighFrequencyTime = time.Minute
+)
+
+// MyClan 本部落标签
+const MyClan = "#R2JRG9PQ"

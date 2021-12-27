@@ -25,12 +25,11 @@ func main() {
 	if err := dao.ConnectDB(); err != nil {
 		log.Fatalf("ConnectDB err: %v", err)
 	}
+	// 异步定时任务
+	async.Init()
+
 	// 启动服务
 	if err := api.Server(); err != nil {
 		log.Fatalf("server err: %v", err)
-	}
-	// 异步定时任务
-	if err := async.Init(); err != nil {
-		log.Fatalf("async.Init err: %v", err)
 	}
 }
