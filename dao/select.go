@@ -1,14 +1,17 @@
 package dao
 
 import (
+	"fmt"
 	"log"
+
+	"go_coc/time"
 )
 
-// QueryAllClanTags 获取数据库current_war表中所有等clanTags
-func QueryAllClanTags() ([]string, error) {
-	// 调用sql语句
-	sql := `SELECT clan_tag FROM current_war;`
-	rows, err := mysqlProxy.Query(sql)
+// QueryActiveClanTags 获取数据库current_war表中活跃的clanTags
+func QueryActiveClanTags() ([]string, error) {
+	// 调用sql语句：查询最近一个月有战绩的部落标签
+	sql := `SELECT distinct clan_tag FROM current_war WHERE start_time like ?;`
+	rows, err := mysqlProxy.Query(sql, fmt.Sprintf("%v%%", time.CurMonth()))
 	if err != nil {
 		return nil, err
 	}

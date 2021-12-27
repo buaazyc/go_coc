@@ -33,7 +33,7 @@ func sync() error {
 
 // currentWar 缓存currentWar
 func currentWar() error {
-	clans, err := dao.QueryAllClanTags()
+	clans, err := dao.QueryActiveClanTags()
 	if err != nil {
 		return err
 	}

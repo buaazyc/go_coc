@@ -19,19 +19,19 @@ type CurrentWar struct {
 
 // ConnectDB 连接数据库
 func ConnectDB() (err error) {
-	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v",
-		config.Conf.MysqlUser,
-		config.Conf.MysqlPassword,
-		config.Conf.MysqlHost,
-		config.Conf.MysqlPort,
-		config.Conf.MysqlDBName,
-	)
-	mysqlProxy, err = sql.Open("mysql", dsn)
+	mysqlProxy, err = sql.Open("mysql",
+		fmt.Sprintf("%v:%v@tcp(%v:%v)/%v",
+			config.Conf.MysqlUser,
+			config.Conf.MysqlPassword,
+			config.Conf.MysqlHost,
+			config.Conf.MysqlPort,
+			config.Conf.MysqlDBName,
+		))
 	if err != nil {
-		return err
+		return fmt.Errorf("sql.Open err: %v", err)
 	}
 	if err = mysqlProxy.Ping(); err != nil {
-		return err
+		return fmt.Errorf("mysqlProxy.Ping err: %v", err)
 	}
 	return nil
 }
