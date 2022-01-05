@@ -1,22 +1,21 @@
-// Package api 存放前后端通信接口相关
+// Package api 存放接口相关代码
 package api
 
 import (
 	"encoding/json"
 	"fmt"
+	"go_coc/constant"
+	"go_coc/scene"
 	"log"
 	"net/http"
 	"strings"
-
-	"go_coc/constant"
-	"go_coc/scene"
 )
 
 // handler 服务监听函数
 func handler(w http.ResponseWriter, req *http.Request) {
 	// 校验和解析
 	if req.Method != "GET" {
-		log.Printf("%+v", req)
+		log.Printf("Method[%+v] is not GET", req.Method)
 		return
 	}
 	use := req.FormValue("use")
@@ -24,58 +23,18 @@ func handler(w http.ResponseWriter, req *http.Request) {
 	if len(clan) < constant.MinClanLen {
 		return
 	}
+	// 标签转大写
 	clan = strings.ToTitle(clan)
 	log.Printf("use: %v clan: %v", use, clan)
-
-	// 根据use不同，触发不同的场景
-	switch use {
-	case "currentwar":
-		cur, err := scene.CurrentWar(clan)
-		if err != nil {
-			log.Printf("cache.CurrentWar err: %v", err)
-			errRsp(w, 404)
-			return
-		}
-		reply(w, cur)
-	case "leaguegroup":
-		group, err := scene.LeagueGroup(clan)
-		if err != nil {
-			log.Printf("scene.LeagueGroup err: %v", err)
-			errRsp(w, 404)
-			return
-		}
-		groupRsp, err := scene.LeagueGroupRsp(group)
-		if err != nil {
-			log.Printf("scene.LeagueGroupRsp err: %v", err)
-			errRsp(w, 404)
-			return
-		}
-		reply(w, groupRsp)
-	case "leaguewar":
-		leaguewar, err := scene.LeagueWarRsp(clan)
-		if err != nil {
-			log.Printf("scene.LeagueWarRsp err: %v", err)
-			errRsp(w, 404)
-			return
-		}
-		reply(w, leaguewar)
-	case "season":
-		season, err := scene.CurSeason(clan)
-		if err != nil {
-			log.Printf("scene.CurSeason err: %v", err)
-			errRsp(w, 404)
-			return
-		}
-		reply(w, season)
-	case "members":
-		members, err := scene.Members(clan)
-		if err != nil {
-			log.Printf("scene.Members err: %v", err)
-			errRsp(w, 404)
-			return
-		}
-		reply(w, members)
-	default:
+	// 获取场景
+	s, ok := scene.GetScene(use)
+	if !ok {
+		errRsp(w, 404)
+	}
+	// Do
+	if err := s.Do(clan, w); err != nil {
+		log.Printf("do err: %v", err)
+		errRsp(w, 404)
 	}
 }
 

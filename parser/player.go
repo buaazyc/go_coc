@@ -3,6 +3,7 @@ package parser
 import "encoding/json"
 
 // PlayerInfo 解析玩家信息
+// 暂时未用到
 func PlayerInfo(info string) (*Player, error) {
 	var playerInfo *Player
 	err := json.Unmarshal([]byte(info), &playerInfo)

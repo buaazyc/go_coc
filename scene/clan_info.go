@@ -2,11 +2,31 @@ package scene
 
 import (
 	"fmt"
+	"net/http"
+
 	"go_coc/client"
+	"go_coc/constant"
 	"go_coc/parser"
 )
 
-func ClanInfo(clan string) (*parser.Clan, error) {
+type MembersScene struct{}
+
+func init() {
+	register(constant.MembersScene, &MembersScene{})
+}
+
+func (s *MembersScene) Do(clan string, w http.ResponseWriter) error {
+	clanInfo, err := clanInfo(clan)
+	if err != nil {
+		return err
+	}
+	if clanInfo.MemberList == nil {
+		return fmt.Errorf("clanInfo.MemberList == nil")
+	}
+	return response(w, clanInfo.MemberList)
+}
+
+func clanInfo(clan string) (*parser.Clan, error) {
 	// 向官方发送请求，获取最新数据
 	res, err := client.SendAPI("/clans/%23" + clan[1:])
 	if err != nil {
@@ -19,15 +39,4 @@ func ClanInfo(clan string) (*parser.Clan, error) {
 	}
 	// log.Printf("%+v", info)
 	return info, nil
-}
-
-func Members(clan string) ([]*parser.ClanMember, error) {
-	clanInfo, err := ClanInfo(clan)
-	if err != nil {
-		return nil, err
-	}
-	if clanInfo.MemberList == nil {
-		return nil, fmt.Errorf("clanInfo.MemberList == nil")
-	}
-	return clanInfo.MemberList, nil
 }

@@ -36,7 +36,7 @@ func cacheActiveCurrentWar() {
 	log.Printf("clans number from dao.QueryAllClanTags is: %v", len(clans))
 	// 遍历所有部落标签，查询最新战绩
 	for _, clan := range clans {
-		if _, err := scene.CurrentWar(clan); err != nil {
+		if _, err := scene.UpdateCurrentWar(clan); err != nil {
 			log.Printf("scene.CurrentWar err: %v", err)
 			continue
 		}
@@ -45,5 +45,5 @@ func cacheActiveCurrentWar() {
 
 // cacheMyCurrentWar 缓存本部落战绩
 func cacheMyCurrentWar() {
-	_, _ = scene.CurrentWar(constant.MyClan)
+	_, _ = scene.UpdateCurrentWar(constant.MyClan)
 }

@@ -2,45 +2,52 @@ package scene
 
 import (
 	"fmt"
+	"net/http"
 	"sync"
 
 	"go_coc/client"
+	"go_coc/constant"
 	"go_coc/goroutine"
 	"go_coc/parser"
 	"go_coc/time"
 )
 
-// LeagueWarRsp 汇总联赛战绩
-func LeagueWarRsp(clan string) (*parser.LeagueWarRsp, error) {
+type LeaguewarScene struct{}
+
+func init() {
+	register(constant.LeaguewarScene, &LeaguewarScene{})
+}
+
+func (s *LeaguewarScene) Do(clan string, w http.ResponseWriter) error {
 	// 获取联赛小组全部信息
-	clanWarLeagueGroup, err := LeagueGroup(clan)
+	clanWarLeagueGroup, err := leagueGroup(clan)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	// 获取联赛中有效战绩
 	wars, err := getValidWar(clan, clanWarLeagueGroup)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if len(wars) == 0 {
-		return nil, fmt.Errorf("clan[%v] len(wars) == 0", clan)
+		return fmt.Errorf("clan[%v] len(wars) == 0", clan)
 	}
 	// 查询部落基本信息
-	clanInfo, err := ClanInfo(clan)
+	clanInfo, err := clanInfo(clan)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	// 提取各成员战绩
 	members := getMembers(wars)
 	// 计算得分
 	calLeagueScore(members)
 	// 返回结果
-	return &parser.LeagueWarRsp{
+	return response(w, &parser.LeagueWarRsp{
 		Name:    wars[0].Name,
 		Season:  time.SeasonStr(clanWarLeagueGroup.Season),
 		League:  clanInfo.WarLeague.Name,
 		Members: members,
-	}, nil
+	})
 }
 
 // LeagueWar 根据warTag获取战绩

@@ -3,14 +3,31 @@ package scene
 import (
 	"fmt"
 	"log"
+	"net/http"
 
+	"go_coc/constant"
 	"go_coc/dao"
 	"go_coc/parser"
 	"go_coc/time"
 )
 
-// Season 部落战赛季汇总
-func Season(clan string, season string) (*parser.SeasonRsp, error) {
+type SeasonScene struct{}
+
+func init() {
+	register(constant.SeasonScene, &SeasonScene{})
+}
+
+func (s *SeasonScene) Do(clan string, w http.ResponseWriter) error {
+	// r, err := season(clan, "202112")
+	r, err := season(clan, time.GetCurSeason())
+	if err != nil {
+		return err
+	}
+	return response(w, r)
+}
+
+// season 部落战赛季汇总
+func season(clan string, season string) (*parser.SeasonRsp, error) {
 	monthWars, err := queryMonthWars(clan, season)
 	if err != nil {
 		return nil, err
@@ -25,11 +42,6 @@ func Season(clan string, season string) (*parser.SeasonRsp, error) {
 		Season:  time.SeasonToStr(season),
 		Members: members,
 	}, nil
-}
-
-// CurSeason 当前赛季的赛季汇总
-func CurSeason(clan string) (*parser.SeasonRsp, error) {
-	return Season(clan, time.GetCurSeason())
 }
 
 // queryMonthWars 从数据库中获取部落整个月的战绩

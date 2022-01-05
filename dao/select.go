@@ -60,7 +60,7 @@ func QueryAllWars(clan string) ([]*CurrentWar, error) {
 // QueryNewestWar 从数据库中获取特定部落最新的战绩
 func QueryNewestWar(clan string) (*CurrentWar, error) {
 	sql := `SELECT clan_tag, start_time, war_info FROM current_war 
-	WHERE clan_tag = ? ORDER BY create_time DESC LIMIT 1;`
+	WHERE clan_tag = ? ORDER BY start_time DESC LIMIT 1;`
 	rows, err := mysqlProxy.Query(sql, clan)
 	if err != nil {
 		return nil, err

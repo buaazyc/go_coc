@@ -19,3 +19,12 @@ const (
 
 // MyClan 本部落标签
 const MyClan = "#R2JRG9PQ"
+
+// 场景类型
+const (
+	CurrentWarScene  = "currentwar"
+	LeaguegroupScene = "leaguegroup"
+	LeaguewarScene   = "leaguewar"
+	SeasonScene      = "season"
+	MembersScene     = "members"
+)
